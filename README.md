@@ -35,7 +35,7 @@ Hệ thống quản lý sinh viên tích hợp AI — được xây dựng bằn
 
 **1. Clone project**
 ```bash
-git clone https://github.com/YOUR_USERNAME/StudentMangementAI.git
+git clone https://github.com/Peter-Kohi/StudentMangementAI.git
 cd StudentMangementAI
 ```
 
