@@ -1,0 +1,12 @@
+# Maven
+target/
+
+# File data (không push data cá nhân lên)
+students.json
+
+# VS Code
+.vscode/
+
+# API keys (tuyệt đối không push)
+.env
+*.env
