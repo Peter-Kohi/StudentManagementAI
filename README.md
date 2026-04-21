@@ -61,4 +61,4 @@ Sau khi chạy, chọn số tương ứng trong menu:
 ## 👨‍💻 Tác giả
 
 - **Nguyễn Trọng Phát** — K19, Công nghệ thông tin Việt - Nhật, UIT
-- GitHub: [YOUR_USERNAME](https://github.com/YOUR_USERNAME)
+- GitHub: [Peter-Kohi](https://github.com/Peter-Kohi)
