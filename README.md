@@ -60,5 +60,5 @@ Sau khi chạy, chọn số tương ứng trong menu:
 
 ## 👨‍💻 Tác giả
 
-- **Nguyễn Trọng Phát** — K19, Công nghệ thông tin Việt - Nhật, UIT
+- **Lê Trọng Phát** — K19, Công nghệ thông tin Việt - Nhật, UIT
 - GitHub: [Peter-Kohi](https://github.com/Peter-Kohi)
