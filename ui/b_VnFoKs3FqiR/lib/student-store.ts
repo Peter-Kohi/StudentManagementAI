@@ -1,7 +1,7 @@
 'use client'
 import { Student } from './types'
 
-const API_URL = 'http://localhost:8080/api/students'
+const API_URL = 'https://student-api-1-k7kc.onrender.com/api/students'
 
 // Chuyển đổi format giữa UI và Backend
 const toBackend = (s: Student) => ({
