@@ -1,58 +1,89 @@
 'use client'
-
 import { Student } from './types'
 
-// Mock data with Vietnamese names
-const initialStudents: Student[] = [
-  { mssv: 'SV001', fullName: 'Nguyễn Văn An', gpa: 3.8, major: 'Công nghệ thông tin', birthYear: 2002 },
-  { mssv: 'SV002', fullName: 'Trần Thị Bình', gpa: 3.5, major: 'Kinh tế', birthYear: 2001 },
-  { mssv: 'SV003', fullName: 'Lê Hoàng Cường', gpa: 2.9, major: 'Công nghệ thông tin', birthYear: 2003 },
-  { mssv: 'SV004', fullName: 'Phạm Minh Dũng', gpa: 3.2, major: 'Điện tử viễn thông', birthYear: 2002 },
-  { mssv: 'SV005', fullName: 'Hoàng Thị Hoa', gpa: 3.9, major: 'Kinh tế', birthYear: 2001 },
-  { mssv: 'SV006', fullName: 'Vũ Đức Hùng', gpa: 2.5, major: 'Cơ khí', birthYear: 2002 },
-  { mssv: 'SV007', fullName: 'Đặng Thanh Lan', gpa: 3.6, major: 'Công nghệ thông tin', birthYear: 2003 },
-  { mssv: 'SV008', fullName: 'Bùi Văn Mạnh', gpa: 2.8, major: 'Xây dựng', birthYear: 2001 },
-  { mssv: 'SV009', fullName: 'Ngô Thị Ngọc', gpa: 3.4, major: 'Kinh tế', birthYear: 2002 },
-  { mssv: 'SV010', fullName: 'Đỗ Quang Phú', gpa: 3.1, major: 'Điện tử viễn thông', birthYear: 2003 },
-  { mssv: 'SV011', fullName: 'Trương Minh Quân', gpa: 2.7, major: 'Cơ khí', birthYear: 2002 },
-  { mssv: 'SV012', fullName: 'Lý Thị Sương', gpa: 3.7, major: 'Công nghệ thông tin', birthYear: 2001 },
-]
+const API_URL = 'http://localhost:8080/api/students'
 
-let students: Student[] = [...initialStudents]
+// Chuyển đổi format giữa UI và Backend
+const toBackend = (s: Student) => ({
+  id: s.mssv,
+  fullName: s.fullName,
+  gpa: s.gpa,
+  major: s.major,
+  birthYear: s.birthYear
+})
+
+const toFrontend = (s: any): Student => ({
+  mssv: s.id,
+  fullName: s.fullName,
+  gpa: s.gpa,
+  major: s.major,
+  birthYear: s.birthYear
+})
+
+let students: Student[] = []
 let listeners: Set<() => void> = new Set()
+
+const notifyListeners = () => listeners.forEach(l => l())
 
 export const studentStore = {
   getStudents: () => students,
-  
+
   subscribe: (listener: () => void) => {
     listeners.add(listener)
     return () => listeners.delete(listener)
   },
-  
-  addStudent: (student: Student) => {
-    students = [...students, student]
-    listeners.forEach(listener => listener())
+
+  // Load data từ Spring Boot khi khởi động
+  fetchAll: async () => {
+    try {
+      const res = await fetch(API_URL)
+      const data = await res.json()
+      students = data.map(toFrontend)
+      notifyListeners()
+    } catch (e) {
+      console.error('Lỗi kết nối backend:', e)
+    }
   },
-  
-  deleteStudent: (mssv: string) => {
-    students = students.filter(s => s.mssv !== mssv)
-    listeners.forEach(listener => listener())
+
+  addStudent: async (student: Student) => {
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(toBackend(student))
+      })
+      if (res.ok) {
+        students = [...students, student]
+        notifyListeners()
+      }
+    } catch (e) {
+      console.error('Lỗi thêm sinh viên:', e)
+    }
   },
-  
+
+  deleteStudent: async (mssv: string) => {
+    try {
+      await fetch(`${API_URL}/${mssv}`, { method: 'DELETE' })
+      students = students.filter(s => s.mssv !== mssv)
+      notifyListeners()
+    } catch (e) {
+      console.error('Lỗi xóa sinh viên:', e)
+    }
+  },
+
   getStudentByMssv: (mssv: string) => {
     return students.find(s => s.mssv === mssv)
   },
-  
+
   getStats: () => {
     const total = students.length
     const avgGpa = total > 0 ? students.reduce((sum, s) => sum + s.gpa, 0) / total : 0
-    const topStudent = students.length > 0 
+    const topStudent = students.length > 0
       ? students.reduce((top, s) => s.gpa > top.gpa ? s : top, students[0])
       : null
-    
     return { total, avgGpa, topStudent }
   },
-  
+
   getGpaDistribution: () => {
     const distribution = [
       { range: '0.0-1.0', count: 0 },
@@ -62,7 +93,6 @@ export const studentStore = {
       { range: '3.0-3.5', count: 0 },
       { range: '3.5-4.0', count: 0 },
     ]
-    
     students.forEach(s => {
       if (s.gpa < 1.0) distribution[0].count++
       else if (s.gpa < 2.0) distribution[1].count++
@@ -71,10 +101,9 @@ export const studentStore = {
       else if (s.gpa < 3.5) distribution[4].count++
       else distribution[5].count++
     })
-    
     return distribution
   },
-  
+
   getMajorDistribution: () => {
     const majorCount: Record<string, number> = {}
     students.forEach(s => {

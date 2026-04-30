@@ -1,6 +1,5 @@
 'use client'
-
-import { useSyncExternalStore, useCallback, useMemo } from 'react'
+import { useSyncExternalStore, useEffect, useMemo } from 'react'
 import { studentStore } from '@/lib/student-store'
 import { Student, SortOrder } from '@/lib/types'
 
@@ -10,7 +9,12 @@ export function useStudents() {
     studentStore.getStudents,
     studentStore.getStudents
   )
-  
+
+  // Gọi fetchAll khi component mount lần đầu
+  useEffect(() => {
+    studentStore.fetchAll()
+  }, [])
+
   return {
     students,
     addStudent: studentStore.addStudent,
@@ -34,13 +38,13 @@ export function useFilteredStudents(
         s.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.major.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    
+
     if (sortOrder === 'asc') {
       filtered = [...filtered].sort((a, b) => a.gpa - b.gpa)
     } else if (sortOrder === 'desc') {
       filtered = [...filtered].sort((a, b) => b.gpa - a.gpa)
     }
-    
+
     return filtered
   }, [students, searchTerm, sortOrder])
 }
